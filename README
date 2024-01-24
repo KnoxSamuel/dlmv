@@ -1,0 +1,24 @@
+# CLI Download Utility
+
+## Introduction
+
+The CLI download utility is designed to enhance the user experience for downloading files and cloning repositories via the command line. It provides a terminal-based GUI for intuitive file system navigation and dynamic destination selection.
+
+## Features
+
+- Interactive File System Navigation using keyboard controls.
+- Dynamic Destination Selection for downloads.
+- Custom Path Entry for advanced users.
+- Integration with `curl`, `wget`, and `git`.
+
+## Installation
+
+(TODO: Add installation steps including environment setup and dependencies installation.)
+
+## Usage
+
+(TODO: Basic usage instructions, example commands, and navigation tips.)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
