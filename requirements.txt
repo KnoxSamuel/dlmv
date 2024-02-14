@@ -1,5 +1,5 @@
-ncurses
+curses
+windows-curses
 os
 shutils
 pytest
-

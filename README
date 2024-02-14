@@ -6,8 +6,8 @@ The CLI download utility is designed to enhance the user experience for download
 
 ## Features
 
-- Interactive File System Navigation using keyboard controls.
-- Dynamic Destination Selection for downloads.
+- Interactive File System Navigation
+- Keyboard controls for Dynamic Destination Selection for downloads.
 - Custom Path Entry for advanced users.
 - Integration with `curl`, `wget`, and `git`.
 
@@ -21,4 +21,4 @@ The CLI download utility is designed to enhance the user experience for download
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE) file for details.
