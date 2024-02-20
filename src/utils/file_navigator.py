@@ -1,3 +1,5 @@
+# src/utils/file_navigator.py
+
 import curses
 import os
 
@@ -53,4 +55,3 @@ class FileNavigator:
                     self.selected_index = 0
             elif key == ord('q'):
                 break
-
