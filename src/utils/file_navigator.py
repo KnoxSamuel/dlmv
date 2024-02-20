@@ -2,10 +2,12 @@
 
 import curses
 import os
+from commands.cloney import Cloney
 
 class FileNavigator:
-    def __init__(self, stdscr):
+    def __init__(self, stdscr, cloney_instance=None):
         self.stdscr = stdscr
+        self.cloney_instance = cloney_instance
         self.current_path = os.getcwd()
         self.selected_index = 0
         self.refresh_files()
@@ -55,3 +57,11 @@ class FileNavigator:
                     self.selected_index = 0
             elif key == ord('q'):
                 break
+            elif key == ord('c') and self.cloney_instance:
+                self.stdscr.addstr(self.height - 1, 1, "Cloning... Please wait.", curses.A_REVERSE)
+                self.stdscr.refresh()
+                self.cloney_instance.repo_url = self.cloney_instance.repo_url
+                self.cloney_instance.options.append(self.current_path)
+                self.cloney_instance.clone()
+                self.stdscr.addstr(self.height - 1, 1, "Cloning complete. Press any key to continue...", curses.A_REVERSE)
+                self.stdscr.getch()
