@@ -60,8 +60,7 @@ class FileNavigator:
             elif key == ord('c') and self.cloney_instance:
                 self.stdscr.addstr(self.height - 1, 1, "Cloning... Please wait.", curses.A_REVERSE)
                 self.stdscr.refresh()
-                self.cloney_instance.repo_url = self.cloney_instance.repo_url
-                self.cloney_instance.options.append(self.current_path)
+                self.cloney_instance.dest = self.current_path
                 self.cloney_instance.clone()
                 self.stdscr.addstr(self.height - 1, 1, "Cloning complete. Press any key to continue...", curses.A_REVERSE)
                 self.stdscr.getch()
