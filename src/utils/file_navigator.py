@@ -30,12 +30,30 @@ class FileNavigator:
                 self.window.addstr(index + 1, 1, file, curses.A_REVERSE)
             else:
                 self.window.addstr(index + 1, 1, file)
-        
+
         self.stdscr.refresh()
         self.window.refresh()
-        
-    def validate_path(path):
-        return os.path.exists(path) and os.path.isdir(path)
+
+    def display_error(self, message):
+        y, x = self.stdscr.getyx()
+    
+        self.stdscr.move(self.height - 2, 1)
+        self.stdscr.clrtoeol()
+        self.stdscr.addstr(message, curses.A_REVERSE)
+        self.stdscr.refresh()
+        curses.napms(2000)  # pause for 2 seconds
+    
+        # clear the error message after displaying it
+        self.stdscr.move(self.height - 2, 1)
+        self.stdscr.clrtoeol()
+        self.stdscr.refresh()
+    
+        # restore cursor position
+        self.stdscr.move(y, x)
+
+    def validate_path(self, path):
+        expanded_path = os.path.expanduser(path)
+        return os.path.exists(expanded_path) and os.path.isdir(expanded_path)
     
     def prompt_custom_path(self):
         # switch to echo mode to allow path entry
@@ -44,9 +62,11 @@ class FileNavigator:
         self.stdscr.refresh()
         custom_path = self.stdscr.getstr(self.height - 1, 20, 60).decode('utf-8')
         curses.noecho() # turn echo off after entry
-        
-        if self.validate_path(custom_path):
-            self.current_path = custom_path
+
+        expanded_path = os.path.expanduser(custom_path)
+
+        if self.validate_path(expanded_path):
+            self.current_path = expanded_path
             self.refresh_files()
             self.selected_index = 0
         else:
