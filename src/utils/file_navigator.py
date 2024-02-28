@@ -33,6 +33,24 @@ class FileNavigator:
         
         self.stdscr.refresh()
         self.window.refresh()
+        
+    def validate_path(path):
+        return os.path.exists(path) and os.path.isdir(path)
+    
+    def prompt_custom_path(self):
+        # switch to echo mode to allow path entry
+        curses.echo()
+        self.stdscr.addstr(self.height - 1, 1, "Enter custom path: ")
+        self.stdscr.refresh()
+        custom_path = self.stdscr.getstr(self.height - 1, 20, 60).decode('utf-8')
+        curses.noecho() # turn echo off after entry
+        
+        if self.validate_path(custom_path):
+            self.current_path = custom_path
+            self.refresh_files()
+            self.selected_index = 0
+        else:
+            self.display_error("Invalid path.")
 
     def navigate(self):
         while True:
@@ -64,3 +82,5 @@ class FileNavigator:
                 self.cloney_instance.clone()
                 self.stdscr.addstr(self.height - 1, 1, "Cloning complete. Press any key to continue...", curses.A_REVERSE)
                 self.stdscr.getch()
+            elif key == ord('p'):
+                self.prompt_custom_path()
