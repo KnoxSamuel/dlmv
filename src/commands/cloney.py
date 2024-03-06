@@ -4,9 +4,10 @@ import subprocess
 import sys
 import curses
 import os
+from typing import Optional, List
 
 class Cloney:
-    def __init__(self, repo_url: str, options: list=None, dest: str=None) -> None:
+    def __init__(self, repo_url: str, options: Optional[List[str]] = None, dest: str = "") -> None:
         self.repo_url = repo_url
         self.options = options if options else []
         self.dest = dest
@@ -23,14 +24,3 @@ class Cloney:
             subprocess.run(command, check=True)
         except subprocess.CalledProcessError as e:
             print(f"Error executing git clone: {e}", file=sys.stderr)
-
-'''
-TODO: - [X] Wrap git clone in class Cloney to pass options to git-clone(1)
-            like so: 
-                `dlmv --cloney <repo_url>`
-
-      - [X] Integration with dlmv: Ensure that the Cloney class can be easily
-            integrated with the rest of the dlmv tool, likely through a
-            command-line argument that triggers the cloning feature.
-
-'''

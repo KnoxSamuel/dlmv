@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # src/main.py
 
 import os
