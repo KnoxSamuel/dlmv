@@ -3,8 +3,8 @@
 
 import os
 import curses
-from utils.file_navigator import FileNavigator
 import argparse
+from utils.file_navigator import FileNavigator
 from commands.cloney import Cloney
 
 def parse_args():
@@ -15,16 +15,13 @@ def parse_args():
     return prs.parse_args()
 
 def main(stdscr, args):
-    cloney_instance = None
     if args.cloney and args.repo_url:
         options = args.options if args.options else []
         cloney_instance = Cloney(args.repo_url, options)
-        #cloney_instance.clone()
+    else:
+        cloney_instance = None
 
-    # Initialize curses interface if not cloning
-    #s = curses.initscr()
     curses.curs_set(0)
-    #sh, sw = s.getmaxyx()
 
     file_navigator = FileNavigator(stdscr, cloney_instance)
     file_navigator.navigate()
