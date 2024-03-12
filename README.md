@@ -23,9 +23,32 @@ Now `dlmv` will activate the tool from anywhere on the filesystem.
 
 ## Usage
 
-- navigation tips
-- list options
-- 2-3 quick start examples
+navigation tips:
+
+``` md
+('h / ←',           "exit folder (cd ..)"),
+('l / → / enter',   "open folder (cd dir/)"),
+('k/j / ↑/↓',       "scroll up/down"),
+('c',               "clone"),
+('p',               "custom path"),
+('q',               "quit")
+```
+
+options: `dlmv --help`
+
+``` sh
+dlmv: a TUI download manager tool for quickly choosing a destination path near the working directory.
+
+dlmv [OPTIONS]
+
+--cloney: Clone a repository using git.
+    repo_url: URL of the repository to clone.
+--help: View help and additional options.
+```
+
+``` md
+[ ] 2-3 quick start examples
+```
 
 ## Contributing
 

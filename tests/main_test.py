@@ -1,7 +1,7 @@
 import pytest
 from src.main import parse_args, main
 from src.utils.file_navigator import FileNavigator
-from src.commands.cloney import Cloney
+from src.utils.cloney import Cloney
 
 def test_parse_args(mocker):
     mock_args = mocker.patch('argparse.ArgumentParser.parse_args', return_value=mocker.Mock(cloney=True, repo_url='https://github.com/user/repo.git', options=['--depth', '1']))

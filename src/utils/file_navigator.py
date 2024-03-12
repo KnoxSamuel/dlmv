@@ -2,137 +2,182 @@
 
 import curses
 import os
-from commands.cloney import Cloney
+#from cloney import Cloney
+from key_mappings import _key_press
+from text_renderer import draw_shortcuts, display_error, display_list
 
 class FileNavigator:
-    def __init__(self, stdscr, cloney_instance=None):
+    """
+    The FileNavigator class provides functionality to navigate through files and directories in a terminal-based user interface (TUI).
+    It allows the user to view and interact with files and directories, including changing directories, opening folders, cloning, and more.
+
+    Attributes:
+        stdscr (curses.window): The standard screen window.
+        cloney_is (None or str): The cloney_is value.
+        curr_path (str): The current path.
+        idx (int): The index.
+        files (list): The list of files in the current path.
+        h (int): The height of the screen.
+        w (int): The width of the screen.
+        window (curses.window): The window object.
+        scroll_pos (int): The scroll position.
+        shortcuts (list): The list of shortcuts.
+
+    Methods:
+        __init__(self, stdscr, cloney_is=None): Initializes a new instance of the FileNavigator class.
+        update_files(self): Updates the list of files in the current path.
+        create_window(self): Creates a new window using the curses library.
+        render(self): Renders the file navigator screen.
+        prep_screen(self): Prepares the screen for display.
+        is_terminal_small(self): Checks if the terminal window is too small to display the interface.
+        get_curr_path(self): Displays the current path above the border and the list of visible files.
+        get_visible_files(self): Retrieves the list of visible files based on the scroll position.
+        refresh(self): Refreshes the terminal and window.
+        validate_path(self, path): Validates if the given path exists and is a directory.
+        get_custom_path(self): Prompts the user to enter a custom destination path and updates the current path if valid.
+        navigate(self): Main loop for rendering the files TUI and handling user input.
+    """
+
+    def __init__(self, stdscr, cloney_is=None):
+        """
+        Initializes a FileNavigator object.
+
+        Parameters:
+            stdscr (curses.window): the standard screen window.
+            cloney_is (None or str): value of cloney_is.
+        """        
         self.stdscr = stdscr
-        self.cloney_instance = cloney_instance
-        self.current_path = os.getcwd()
-        self.selected_index = 0
-        self.refresh_files()
-        self.height, self.width = stdscr.getmaxyx()
-        self.window = curses.newwin(self.height - 2, self.width - 2, 1, 1) # Window border
+        self.cloney_is = cloney_is
+        self.curr_path = os.getcwd()
+        self.idx = 0
+        self.update_files()
+        self.h, self.w = stdscr.getmaxyx()
+        self.window = self.create_window()
         self.scroll_pos = 0
 
-    def refresh_files(self):
-        self.files = os.listdir(self.current_path)
+    def update_files(self):
+        """
+        Updates self.files with the list of files in the current path.
+        """
+        self.files = os.listdir(self.curr_path)
 
-    def draw(self):
-        if self.height < 4 or self.width < 20:
+    def create_window(self):
+        """
+        Creates a new window using the curses library.
+
+        Returns:
+            window (curses.window): The newly created window.
+        """
+        window = curses.newwin(self.h - 2, self.w - 2, 1, 1)
+        return window
+    
+    def render(self):
+        """
+        Renders the file navigator screen.
+
+        Prepares render, shows files, draws shortcuts, and refreshes display.
+        """
+        self.prep_screen()
+        self.get_curr_path()
+        draw_shortcuts(self.w)
+        self.refresh()
+        
+    def prep_screen(self):
+        """
+        Prepares the screen for display.
+
+        If the terminal size is too small, it displays an error message.
+        Otherwise, it clears the standard screen and window, and draws a box.
+        """
+        if self.is_terminal_small():
+            display_error(self.stdscr, 'Terminal too small!!', self.h)
+
+        else:
             self.stdscr.clear()
-            self.stdscr.addstr(0, 0, "Terminal too small.", curses.A_REVERSE)
-            self.stdscr.refresh()
-            return
+            self.window.clear()
+            self.stdscr.box()
+            
+    def is_terminal_small(self):
+        """
+        Check if the terminal window is too small to display the interface.
 
-        self.stdscr.clear()
-        self.window.clear()
-        self.stdscr.box()
+        Returns:
+            bool: True if the terminal window is too small, False otherwise.
+        """
+        return self.h < 4 or self.w < 20
+    
+    def get_curr_path(self):
+        """
+        Display the current path above border.
 
-        # Display the current path above border
-        self.stdscr.addstr(0, 1, f" Current Path: {self.current_path} ", curses.A_REVERSE)
+        This method adds the current path to the top border.
+        It also retrieves visible files and renders with `display_list`.
+        """
+        self.stdscr.addstr(0, 1, f" -> Path: {self.curr_path} ", curses.A_REVERSE)
+        visible_files = self.get_visible_files()
+        display_list(self.window, self.idx, self.scroll_pos, visible_files)
+        
+    def get_visible_files(self):
+        """
+        Updates the list of files that based on the scroll position.
 
-        visible_files = self.files[self.scroll_pos:self.scroll_pos + self.height - 4]
+        Returns:
+            list: A list of files that should be visible.
+        """
+        return self.files[self.scroll_pos:self.scroll_pos + self.h - 4]
+       
+    def refresh(self):
+        """
+        Refresh terminal and window.
 
-        for i, file in enumerate(visible_files):
-            if self.selected_index == self.scroll_pos + i:
-                self.window.addstr(i+1, 1, file, curses.A_REVERSE)
-            else:
-                self.window.addstr(i+1, 1, file)
-
+        This method updates the display to reflect any changes made.
+        """
         self.stdscr.refresh()
         self.window.refresh()
 
-    def display_error(self, message):
-        y, x = self.stdscr.getyx()
-    
-        self.stdscr.move(self.height - 2, 1)
-        self.stdscr.clrtoeol()
-        self.stdscr.addstr(message, curses.A_REVERSE)
-        self.stdscr.refresh()
-        curses.napms(2000)  # pause for 2 seconds
-    
-        # clear the error message after displaying it
-        self.stdscr.move(self.height - 2, 1)
-        self.stdscr.clrtoeol()
-        self.stdscr.refresh()
-    
-        # restore cursor position
-        self.stdscr.move(y, x)
-
     def validate_path(self, path):
+        """
+        Validates if the given path exists and is a directory.
+
+        Parameters:
+            path (str): The path to be validated.
+
+        Returns:
+            bool: True if the path exists and is a directory, False otherwise.
+        """
         expanded_path = os.path.expanduser(path)
         return os.path.exists(expanded_path) and os.path.isdir(expanded_path)
     
-    def prompt_custom_path(self):
-        # switch to echo mode to allow path entry
-        curses.echo()
-        self.stdscr.addstr(self.height - 1, 1, "Enter custom path: ")
+    def get_custom_path(self):
+        """
+        Prompts the user to enter a custom destination path and updates the current path if valid.
+        """
+        curses.echo() # switch to echo mode to allow path entry
+        self.stdscr.addstr(self.h - 1, 1, "Destination path: ")
         self.stdscr.refresh()
-        custom_path = self.stdscr.getstr(self.height - 1, 20, 60).decode('utf-8')
-        curses.noecho() # turn echo off after entry
+        custom_path = self.stdscr.getstr(self.h - 1, 20, 60).decode('utf-8')
+        curses.noecho() # turn echo back to off
 
         expanded_path = os.path.expanduser(custom_path)
 
         if self.validate_path(expanded_path):
-            self.current_path = expanded_path
-            self.refresh_files()
-            self.selected_index = 0
+            self.curr_path = expanded_path
+            self.update_files()
+            self.idx = 0
         else:
-            self.display_error("Invalid path.")
+            display_error(self.stdscr, "Invalid path...", self.h)
+
 
     def navigate(self):
+        """
+        Main loop for rendering the files TUI and handling of user input.
+        
+        Listens for input to update the TUI, quitting when `q` is received.
+        """
         while True:
-            self.draw()
+            self.render()
             key = self.stdscr.getch()
-
-            max_scroll = max(0, len(self.files) - (self.height - 4))
-            max_index = len(self.files) - 1
-
-            if key in [curses.KEY_UP, ord('k')]:
-                if self.selected_index > 0:
-                    self.selected_index -= 1
-                if self.selected_index < self.scroll_pos:
-                    self.scroll_pos = max(0, self.scroll_pos - 1)
-            
-            elif key in [curses.KEY_DOWN, ord('j')]:
-                if self.selected_index < max_index:
-                    self.selected_index += 1
-                if self.selected_index >= self.scroll_pos + self.height - 4:
-                    self.scroll_pos = min(max_scroll, self.scroll_pos + 1)
-            
-            elif key in [curses.KEY_RIGHT, ord('l'), curses.KEY_ENTER, 10]:
-                selected_file = self.files[self.selected_index]
-                new_path = os.path.join(self.current_path, selected_file)
-                if os.path.isdir(new_path):
-                    self.current_path = new_path
-                    self.refresh_files()
-                    self.selected_index = 0
-            
-            elif key in [curses.KEY_LEFT, ord('h')]:
-                if self.current_path != '/':
-                    self.current_path = os.path.dirname(self.current_path)
-                    self.refresh_files()
-                    self.selected_index = 0
-            
-            elif key == ord('q'):
-                curses.endwin()
+            _key_press(key, self)
+            if self.stdscr.isendwin():
                 break
             
-            elif key == ord('c') and self.cloney_instance:
-                self.stdscr.addstr(self.height - 1, 1, "Cloning... Please wait.", curses.A_REVERSE)
-                self.stdscr.refresh()
-                self.cloney_instance.dest = self.current_path
-                self.cloney_instance.clone()
-                self.stdscr.addstr(self.height - 1, 1, "Cloning complete. Press any key to continue...", curses.A_REVERSE)
-                self.stdscr.getch()
-                self.refresh_files()
-            
-            elif key == ord('p'):
-                self.prompt_custom_path()
-            
-            elif key == curses.KEY_RESIZE:
-                self.height, self.width = self.stdscr.getmaxyx()
-                self.window.resize(self.height - 2, self.width - 2)
-                if self.height < 4 or self.width < 20:
-                    continue
