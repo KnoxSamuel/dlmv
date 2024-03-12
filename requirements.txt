@@ -1,5 +1,4 @@
-curses
-windows-curses
-os
-shutils
 pytest
+setuptools
+windows-curses
+curses

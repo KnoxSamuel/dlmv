@@ -136,5 +136,3 @@ class FileNavigator:
                 self.window.resize(self.height - 2, self.width - 2)
                 if self.height < 4 or self.width < 20:
                     continue
-
-
