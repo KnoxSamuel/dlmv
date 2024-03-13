@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # src/main.py
 
-import os
 import curses as c
 import argparse
 from utils.file_navigator import FileNavigator
 from utils.cloney import Cloney
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """
     Parse command line arguments for the dlmv tool runtime.
 
