@@ -26,7 +26,7 @@ def _key_press(key, nav):
         10:                 lambda: nav_into(nav),
         
         ord('c'):           lambda: clone_repo(nav) if nav.cloney_is else None,
-        ord('p'):           lambda: nav.prompt_custom_path(),
+        ord('p'):           lambda: nav.get_custom_path(),
         
         ord('q'):           lambda: _exit(),
         c.KEY_RESIZE:       lambda: resize_window(nav),
@@ -80,6 +80,7 @@ def nav_back(nav):
 def _exit():
     """Exit the file nav."""
     c.endwin()
+    return True
 
 def clone_repo(nav):
     """
