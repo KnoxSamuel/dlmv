@@ -8,8 +8,8 @@ path near the working directory.
 Download the source code.
 
 ``` sh
-git clone {repo_url}
-cd {repo_url}
+git clone https://github.com/KnoxSamuel/dlmv.git
+cd dlmv
 ```
 
 Run `setup.py` install script with:
