@@ -1,6 +1,6 @@
 # src/utils/text_renderer.py
 
-import curses
+import curses as c
 import os
 
 shortcuts = [
@@ -26,28 +26,33 @@ def draw_shortcuts(width):
     box_w = max(len(desc) for _, desc in shortcuts) + 4
     box_y, box_x = 1, width - box_w - 2  # align top right with padding
     
-    keys_win = curses.newwin(box_h, box_w, box_y, box_x)
+    keys_win = c.newwin(box_h, box_w, box_y, box_x)
     keys_win.box()
     
     for idx, (key, desc) in enumerate(shortcuts):
         keys_win.addstr(idx + 1, 2, f"{key}: {desc}")
     keys_win.refresh()
 
-def display_list(window, idx, scroll_pos, files):
+def display_list(window, idx, scroll_pos, files, curr_path):
     """
-    Display the list of files in the window.
+    Display list of files in the window, with directories and files colored differently.
 
     Parameters:
         window (curses.window): The window object where files will be displayed.
         idx (int): The current selected index in the file list.
         scroll_pos (int): The current scroll position in the file list.
         files (list): A list of file names to be displayed.
+        curr_path (str): The current path to resolve full paths for files/directories.
+
     """
     for i, file in enumerate(files):
+        is_dir = os.path.isdir(os.path.join(curr_path, file))
+        color_pair = 1 if is_dir else 2  # color pair 1 for dirs, 2 for files
+        
         if idx == scroll_pos + i:
-            window.addstr(i+1, 1, file, curses.A_REVERSE)
+            window.addstr(i + 1, 1, file, c.color_pair(color_pair) | c.A_REVERSE)
         else:
-            window.addstr(i+1, 1, file)
+            window.addstr(i + 1, 1, file, c.color_pair(color_pair))
 
 def display_error(stdscr, message, height):
     """
@@ -63,9 +68,9 @@ def display_error(stdscr, message, height):
     # Move to the error message position, clear the line, and display the error
     stdscr.move(height - 2, 1)
     stdscr.clrtoeol()
-    stdscr.addstr(message, curses.A_REVERSE)
+    stdscr.addstr(message, c.A_REVERSE)
     stdscr.refresh()
-    curses.napms(2000)  # Pause for 2 seconds to let the user read the message
+    c.napms(2000)  # Pause for 2 seconds to let the user read the message
 
     # Clear the error message
     stdscr.move(height - 2, 1)

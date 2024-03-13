@@ -2,7 +2,7 @@
 # src/main.py
 
 import os
-import curses
+import curses as c
 import argparse
 from utils.file_navigator import FileNavigator
 from utils.cloney import Cloney
@@ -35,10 +35,15 @@ def main(stdscr, args: argparse.Namespace) -> None:
     else:
         cloney_instance = None
 
-    curses.curs_set(0) # hide cursor
+    c.curs_set(0) # hide cursor
+    if c.has_colors():
+        c.start_color()
+        c.init_pair(1, c.COLOR_CYAN, c.COLOR_BLACK)  # For directories
+        c.init_pair(2, c.COLOR_WHITE, c.COLOR_BLACK)  # For files
+
     file_navigator = FileNavigator(stdscr, cloney_instance)
     file_navigator.navigate()
 
 if __name__ == "__main__":
     args = parse_args()
-    curses.wrapper(main, args)
+    c.wrapper(main, args)

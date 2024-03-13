@@ -1,15 +1,16 @@
 # src/utils/file_navigator.py
 
-import curses
+import curses as c
 import os
-#from cloney import Cloney
 from key_mappings import _key_press
 from text_renderer import draw_shortcuts, display_error, display_list
+#from cloney import Cloney
 
 class FileNavigator:
     """
-    The FileNavigator class provides functionality to navigate through files and directories in a terminal-based user interface (TUI).
-    It allows the user to view and interact with files and directories, including changing directories, opening folders, cloning, and more.
+    The FileNavigator class provides functionality to navigate through files and directories in
+    a terminal-based user interface (TUI). It allows the user to view and interact with files
+    and directories, including changing directories, opening folders, cloning, and more.
 
     Attributes:
         stdscr (curses.window): The standard screen window.
@@ -24,17 +25,17 @@ class FileNavigator:
         shortcuts (list): The list of shortcuts.
 
     Methods:
-        __init__(self, stdscr, cloney_is=None): Initializes a new instance of the FileNavigator class.
+        __init__(self, stdscr, cloney_is=None): Initializes a new FileNavigator object.
         update_files(self): Updates the list of files in the current path.
         create_window(self): Creates a new window using the curses library.
         render(self): Renders the file navigator screen.
         prep_screen(self): Prepares the screen for display.
-        is_terminal_small(self): Checks if the terminal window is too small to display the interface.
-        get_curr_path(self): Displays the current path above the border and the list of visible files.
+        is_terminal_small(self): Checks if the terminal window is too small for the interface.
+        get_curr_path(self): Displays the current path above the border and visible files.
         get_visible_files(self): Retrieves the list of visible files based on the scroll position.
         refresh(self): Refreshes the terminal and window.
         validate_path(self, path): Validates if the given path exists and is a directory.
-        get_custom_path(self): Prompts the user to enter a custom destination path and updates the current path if valid.
+        get_custom_path(self): Prompts user for custom destination path.
         navigate(self): Main loop for rendering the files TUI and handling user input.
     """
 
@@ -68,7 +69,7 @@ class FileNavigator:
         Returns:
             window (curses.window): The newly created window.
         """
-        window = curses.newwin(self.h - 2, self.w - 2, 1, 1)
+        window = c.newwin(self.h - 2, self.w - 2, 1, 1)
         return window
     
     def render(self):
@@ -113,9 +114,9 @@ class FileNavigator:
         This method adds the current path to the top border.
         It also retrieves visible files and renders with `display_list`.
         """
-        self.stdscr.addstr(0, 1, f" -> Path: {self.curr_path} ", curses.A_REVERSE)
+        self.stdscr.addstr(0, 1, f" -> Path: {self.curr_path} ", c.A_REVERSE)
         visible_files = self.get_visible_files()
-        display_list(self.window, self.idx, self.scroll_pos, visible_files)
+        display_list(self.window, self.idx, self.scroll_pos, visible_files, self.curr_path)
         
     def get_visible_files(self):
         """
@@ -152,11 +153,11 @@ class FileNavigator:
         """
         Prompts the user to enter a custom destination path and updates the current path if valid.
         """
-        curses.echo() # switch to echo mode to allow path entry
+        c.echo() # switch to echo mode to allow path entry
         self.stdscr.addstr(self.h - 1, 1, "Destination path: ")
         self.stdscr.refresh()
         custom_path = self.stdscr.getstr(self.h - 1, 20, 60).decode('utf-8')
-        curses.noecho() # turn echo back to off
+        c.noecho() # turn echo back to off
 
         expanded_path = os.path.expanduser(custom_path)
 
