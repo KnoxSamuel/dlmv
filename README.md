@@ -1,7 +1,15 @@
 # dlmv, cli download manager
 
-dlmv is a TUI download manager for quickly choosing a destination
-path near the working directory.
+`dlmv` is a TUI download manager for quickly choosing a destination
+path near the working directory, or simple filesystem navigation.
+
+## Prerequisites
+
+Before you can install `dlmv`, make sure you have the following prerequisites installed:
+
+- Python (3.8+): Download and install from [python.org](https://www.python.org/downloads/) or use your operating system's package manager.
+- pip: Usually comes with Python. If not, follow the [installation instructions](https://pip.pypa.io/en/stable/installation/).
+- git: Download and install from [git-scm.com](https://git-scm.com/downloads).
 
 ## Installation
 
@@ -12,43 +20,92 @@ git clone https://github.com/KnoxSamuel/dlmv.git
 cd dlmv
 ```
 
-Run `setup.py` install script with:
+Install required dependencies.
 
 ``` sh
 pip install -r requirements.txt
+```
+
+Install the `dlmv` package.
+
+``` sh
 pip install .
 ```
 
-Now `dlmv` will activate the tool from anywhere on the filesystem.
+After installation, `dlmv` can be activated from anywhere on the filesystem.
 
 ## Usage
 
-navigation tips:
+Basic usage to open the TUI for filesystem navigation
 
-``` md
+``` sh
+dlmv
+```
+
+Clone a repository using the --cloney option
+
+``` sh
+dlmv --cloney https://github.com/<username>/<repo_url>.git
+```
+
+Display help options
+
+``` sh
+dlmv --help
+```
+
+Navigation:
+
+``` sh
 ('h / ←',           "exit folder (cd ..)"),
 ('l / → / enter',   "open folder (cd dir/)"),
 ('k/j / ↑/↓',       "scroll up/down"),
-('c',               "clone"),
+('c',               "clone here"),
 ('p',               "custom path"),
 ('q',               "quit")
 ```
 
-options: `dlmv --help`
+## Development Environment
+
+Follow these steps to set up a development environment for dlmv.
+
+Create a virtual environment.
 
 ``` sh
-dlmv: a TUI download manager tool for quickly choosing a destination path near the working directory.
-
-dlmv [OPTIONS]
-
---cloney: Clone a repository using git.
-    repo_url: URL of the repository to clone.
---help: View help and additional options.
+python -m venv venv
 ```
 
-``` md
-[ ] 2-3 quick start examples
+Activate the virtual environment.
+
+``` sh
+On Windows:
+.\venv\Scripts\activate
+
+On Unix or MacOS:
+source venv/bin/activate
 ```
+
+Install required dependencies.
+
+``` sh
+pip install -r requirements.txt
+```
+
+Once the dev environment is set up, you can make changes to the codebase. Test your changes with:
+
+``` sh
+python -m unittest discover tests
+```
+
+Build the executable by running:
+
+``` sh
+python setup.py install
+```
+
+Ensure that the executable created can be invoked from the command line using the dlmv command.
+
+For any issues during installation or setting up the development environment, check the [GitHub issues tracker](https://github.com/KnoxSamuel/dlmv/issues) for similar problems or to add a new issue.
 
 ## Contributing
 

@@ -12,6 +12,7 @@ shortcuts = [
     ('q',               "quit")
 ]
 
+# TODO: #1 [ ] Fix draw_shortcuts(width) window rendering bug.
 def draw_shortcuts(width):
     """
     Draws a box with shortcut descriptions in the top right corner.
