@@ -1,10 +1,10 @@
 # src/utils/file_navigator.py
 
-import curses as c
 import os
-from key_mappings import _key_press
-from text_renderer import draw_shortcuts, display_error, display_list
-#from cloney import Cloney
+import curses
+from curses.textpad import Textbox, rectangle
+from .key_mappings import _key_press
+from .text_renderer import draw_shortcuts, display_error, display_list
 
 class FileNavigator:
     """
@@ -69,7 +69,7 @@ class FileNavigator:
         Returns:
             window (curses.window): The newly created window.
         """
-        window = c.newwin(self.h - 2, self.w - 2, 1, 1)
+        window = curses.newwin(self.h - 2, self.w - 2, 1, 1)
         return window
     
     def render(self):
@@ -114,7 +114,7 @@ class FileNavigator:
         This method adds the current path to the top border.
         It also retrieves visible files and renders with `display_list`.
         """
-        self.stdscr.addstr(0, 1, f" -> Path: {self.curr_path} ", c.A_REVERSE)
+        self.stdscr.addstr(0, 1, f" -> Path: {self.curr_path} ", curses.A_REVERSE)
         visible_files = self.get_visible_files()
         display_list(self.window, self.idx, self.scroll_pos, visible_files, self.curr_path)
         
@@ -153,21 +153,37 @@ class FileNavigator:
         """
         Prompts the user to enter a custom destination path and updates the current path if valid.
         """
-        c.echo() # switch to echo mode to allow path entry
-        self.stdscr.addstr(self.h - 1, 1, "Destination path: ")
-        self.stdscr.refresh()
-        custom_path = self.stdscr.getstr(self.h - 1, 20, 60).decode('utf-8')
-        c.noecho() # turn echo back to off
+        input_w = 40
+        input_h = 1
 
-        expanded_path = os.path.expanduser(custom_path)
+        win_w = self.window.getmaxyx()[1]
+        box_x = (win_w - input_w) // 2
+        box_y = 3
+        msg = "Destination path: "
+
+        input_win = curses.newwin(input_h+2, input_w, box_y, box_x)
+        self.stdscr.addstr(box_y-1, box_x, msg)
+        rectangle(self.stdscr, box_y-1, box_x-1, box_y+input_h+1, box_x+input_w+1)
+        self.stdscr.refresh()
+
+        box = Textbox(input_win)
+        box.edit()
+        input_win.refresh()
+
+        path = box.gather().strip()
+        expanded_path = os.path.expanduser(path)
 
         if self.validate_path(expanded_path):
             self.curr_path = expanded_path
             self.update_files()
             self.idx = 0
+            self.window.clear()
+            self.render()
         else:
             display_error(self.stdscr, "Invalid path...", self.h)
 
+        self.stdscr.touchwin()
+        self.refresh()
 
     def navigate(self):
         """
@@ -179,6 +195,6 @@ class FileNavigator:
             self.render()
             key = self.stdscr.getch()
             _key_press(key, self)
-            if self.stdscr.isendwin():
+            if curses.isendwin():
                 break
             
