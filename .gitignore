@@ -6,5 +6,4 @@ env
 venv/
 .venv/
 build/*
-dlmv.egg-info/
-dist/
+
