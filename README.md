@@ -40,6 +40,11 @@ Basic usage to open the TUI for filesystem navigation
 
 ``` sh
 dlmv
+
+# if setuptools is giving you issues:
+cd dlmv/
+python3 src/dlmv/main.py
+python3 src/dlmv/main.py --cloney <repo_url>
 ```
 
 Clone a repository using the --cloney option
