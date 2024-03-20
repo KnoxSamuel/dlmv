@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0", "pytest"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dlmv"
+version = "0.1.1"
+authors = [
+  { name="Samuel Knox", email="knoxsa@oregonstate.edu" },
+]
+description = "dlmv is a TUI download manager for quickly choosing a destination path near the working directory, or simple filesystem navigation."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/knoxsamuel/dlmv"
+Issues = "https://github.com/knoxsamuel/dlmv/issues"

@@ -26,34 +26,13 @@ def draw_shortcuts(width):
     box_h = len(shortcuts) + 2
     box_w = max(len(desc) for _, desc in shortcuts) + 4
     box_y, box_x = 1, width - box_w - 2  # align top right with padding
-    
+
     keys_win = c.newwin(box_h, box_w, box_y, box_x)
     keys_win.box()
-    
+
     for idx, (key, desc) in enumerate(shortcuts):
         keys_win.addstr(idx + 1, 2, f"{key}: {desc}")
     keys_win.refresh()
-
-def display_list(window, idx, scroll_pos, files, curr_path):
-    """
-    Display list of files in the window, with directories and files colored differently.
-
-    Parameters:
-        window (curses.window): The window object where files will be displayed.
-        idx (int): The current selected index in the file list.
-        scroll_pos (int): The current scroll position in the file list.
-        files (list): A list of file names to be displayed.
-        curr_path (str): The current path to resolve full paths for files/directories.
-
-    """
-    for i, file in enumerate(files):
-        is_dir = os.path.isdir(os.path.join(curr_path, file))
-        color_pair = 1 if is_dir else 2  # color pair 1 for dirs, 2 for files
-        
-        if idx == scroll_pos + i:
-            window.addstr(i + 1, 1, file, c.color_pair(color_pair) | c.A_REVERSE)
-        else:
-            window.addstr(i + 1, 1, file, c.color_pair(color_pair))
 
 def display_error(stdscr, message, height):
     """
@@ -80,3 +59,25 @@ def display_error(stdscr, message, height):
     # Restore the original cursor position
     stdscr.move(y, x)
     stdscr.refresh()
+
+def display_list(window, idx, scroll_pos, files, curr_path):
+    """
+    Display list of files in the window, with directories and files colored differently.
+
+    Parameters:
+        window (curses.window): The window object where files will be displayed.
+        idx (int): The current selected index in the file list.
+        scroll_pos (int): The current scroll position in the file list.
+        files (list): A list of file names to be displayed.
+        curr_path (str): The current path to resolve full paths for files/directories.
+
+    """
+    for i, file in enumerate(files):
+        is_dir = os.path.isdir(os.path.join(curr_path, file))
+        color_pair = 1 if is_dir else 2  # color pair 1 for dirs, 2 for files
+
+        if idx == scroll_pos + i:
+            window.addstr(i + 1, 1, file, c.color_pair(color_pair) | c.A_REVERSE)
+        else:
+            window.addstr(i + 1, 1, file, c.color_pair(color_pair))
+

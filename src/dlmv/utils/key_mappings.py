@@ -6,7 +6,7 @@ import os
 def _key_press(key, nav):
     """
     Handle user key presses by mapping them to file navigator actions.
-    
+
     Parameters:
         key: The key pressed by the user.
         nav: The FileNavigator instance.
@@ -24,10 +24,10 @@ def _key_press(key, nav):
         c.KEY_RIGHT:        lambda: nav_into(nav),
         c.KEY_ENTER:        lambda: nav_into(nav),
         10:                 lambda: nav_into(nav),
-        
+
         ord('c'):           lambda: clone_repo(nav) if nav.cloney_is else None,
         ord('p'):           lambda: nav.get_custom_path(),
-        
+
         ord('q'):           lambda: _exit(),
         c.KEY_RESIZE:       lambda: resize_window(nav),
     }
@@ -38,7 +38,7 @@ def _key_press(key, nav):
 def move_up(nav):
     """
     Move the selection up in the file list.
-    
+
     """
     if nav.idx > 0:
         nav.idx -= 1
@@ -48,7 +48,7 @@ def move_up(nav):
 def move_down(nav, max_scroll):
     """
     Move the selection down in the file list.
-    
+
     """
     if nav.idx < len(nav.files) - 1:
         nav.idx += 1
@@ -58,7 +58,7 @@ def move_down(nav, max_scroll):
 def nav_into(nav):
     """
     Navigate into the selected directory.
-    
+
     """
     selected_file = nav.files[nav.idx]
     new_path = os.path.join(nav.curr_path, selected_file)
@@ -70,7 +70,7 @@ def nav_into(nav):
 def nav_back(nav):
     """
     Navigate back to the parent directory.
-    
+
     """
     if nav.curr_path != '/':
         nav.curr_path = os.path.dirname(nav.curr_path)
@@ -85,7 +85,7 @@ def _exit():
 def clone_repo(nav):
     """
     Initiate the cloning process for the selected repository.
-    
+
     """
     nav.stdscr.addstr(nav.h - 1, 1, "Cloning... Please wait.", c.A_REVERSE)
     nav.stdscr.refresh()
@@ -104,4 +104,4 @@ def resize_window(nav):
     nav.window.resize(nav.h - 2, nav.w - 2)
     if nav.h < 4 or nav.w < 20:
         return  # Do nothing if window is too small
-    
+

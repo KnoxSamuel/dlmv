@@ -46,7 +46,7 @@ class FileNavigator:
         Parameters:
             stdscr (curses.window): the standard screen window.
             cloney_is (None or str): value of cloney_is.
-        """        
+        """
         self.stdscr = stdscr
         self.cloney_is = cloney_is
         self.curr_path = os.getcwd()
@@ -71,7 +71,7 @@ class FileNavigator:
         """
         window = curses.newwin(self.h - 2, self.w - 2, 1, 1)
         return window
-    
+
     def render(self):
         """
         Renders the file navigator screen.
@@ -82,7 +82,7 @@ class FileNavigator:
         self.get_curr_path()
         draw_shortcuts(self.w)
         self.refresh()
-        
+
     def prep_screen(self):
         """
         Prepares the screen for display.
@@ -97,7 +97,7 @@ class FileNavigator:
             self.stdscr.clear()
             self.window.clear()
             self.stdscr.box()
-            
+
     def is_terminal_small(self):
         """
         Check if the terminal window is too small to display the interface.
@@ -106,7 +106,7 @@ class FileNavigator:
             bool: True if the terminal window is too small, False otherwise.
         """
         return self.h < 4 or self.w < 20
-    
+
     def get_curr_path(self):
         """
         Display the current path above border.
@@ -117,7 +117,7 @@ class FileNavigator:
         self.stdscr.addstr(0, 1, f" -> Path: {self.curr_path} ", curses.A_REVERSE)
         visible_files = self.get_visible_files()
         display_list(self.window, self.idx, self.scroll_pos, visible_files, self.curr_path)
-        
+
     def get_visible_files(self):
         """
         Updates the list of files that based on the scroll position.
@@ -126,7 +126,7 @@ class FileNavigator:
             list: A list of files that should be visible.
         """
         return self.files[self.scroll_pos:self.scroll_pos + self.h - 4]
-       
+
     def refresh(self):
         """
         Refresh terminal and window.
@@ -148,7 +148,7 @@ class FileNavigator:
         """
         expanded_path = os.path.expanduser(path)
         return os.path.exists(expanded_path) and os.path.isdir(expanded_path)
-    
+
     def get_custom_path(self):
         """
         Prompts the user to enter a custom destination path and updates the current path if valid.
@@ -188,7 +188,7 @@ class FileNavigator:
     def navigate(self):
         """
         Main loop for rendering the files TUI and handling of user input.
-        
+
         Listens for input to update the TUI, quitting when `q` is received.
         """
         while True:
@@ -197,4 +197,4 @@ class FileNavigator:
             _key_press(key, self)
             if curses.isendwin():
                 break
-            
+
