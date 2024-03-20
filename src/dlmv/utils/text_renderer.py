@@ -5,35 +5,29 @@ import os
 
 shortcuts = [
     ('h / ←',           "exit folder (cd ..)"),
-    ('l / → / enter',   "open folder (cd dir/)"),
-    ('k/j / ↑/↓',       "scroll up/down"),
+    ('l / → / enter',   "open folder (cd foo/)"),
+    ('k/j / ↑/↓',       "up/down"),
     ('c',               "clone"),
     ('p',               "custom path"),
     ('q',               "quit")
 ]
 
-# TODO: #1 [ ] Fix draw_shortcuts(width) window rendering bug.
-def draw_shortcuts(width):
+# TODO: [ ] BUG: draw_shortcuts(width) rendering on FileNavigator curses window.
+def draw_shortcuts(window, width):
     """
-    Draws a box with shortcut descriptions in the top right corner.
+    Draws shortcut descriptions in the top right corner.
 
     Parameters:
-        stdscr: The main window object provided by curses.
+        window: The main window object provided by curses.
         shortcuts: A list of tuples containing shortcut keys and descriptions.
-        height: The height of the terminal window.
-        width: The width of the terminal window.
     """
-    box_h = len(shortcuts) + 2
-    box_w = max(len(desc) for _, desc in shortcuts) + 4
-    box_y, box_x = 1, width - box_w - 2  # align top right with padding
-
-    keys_win = c.newwin(box_h, box_w, box_y, box_x)
-    keys_win.box()
+    box_w = 30
+    box_y, box_x = 1, width - box_w  # align top right with padding
 
     for idx, (key, desc) in enumerate(shortcuts):
-        keys_win.addstr(idx + 1, 2, f"{key}: {desc}")
-    keys_win.refresh()
+        window.addstr(box_y + idx, box_x, f"{key}: {desc}")
 
+# TODO: [ ] BUG: display_error(stdscr, message, height) not rendering errors from FileNavigator.
 def display_error(stdscr, message, height):
     """
     Displays an error message on the screen.
@@ -80,4 +74,3 @@ def display_list(window, idx, scroll_pos, files, curr_path):
             window.addstr(i + 1, 1, file, c.color_pair(color_pair) | c.A_REVERSE)
         else:
             window.addstr(i + 1, 1, file, c.color_pair(color_pair))
-

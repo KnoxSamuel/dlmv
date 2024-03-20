@@ -3,7 +3,7 @@
 import curses as c
 import os
 
-def _key_press(key, nav):
+def _key_press(stdscr, key, nav):
     """
     Handle user key presses by mapping them to file navigator actions.
 
@@ -28,7 +28,7 @@ def _key_press(key, nav):
         ord('c'):           lambda: clone_repo(nav) if nav.cloney_is else None,
         ord('p'):           lambda: nav.get_custom_path(),
 
-        ord('q'):           lambda: _exit(),
+        ord('q'):           lambda: _exit(stdscr),
         c.KEY_RESIZE:       lambda: resize_window(nav),
     }
 
@@ -77,8 +77,11 @@ def nav_back(nav):
         nav.update_files()
         nav.idx = 0
 
-def _exit():
+def _exit(stdscr):
     """Exit the file nav."""
+    c.nocbreak()
+    stdscr.keypad(False)
+    c.echo()
     c.endwin()
     return True
 
@@ -102,6 +105,6 @@ def resize_window(nav):
     """
     nav.h, nav.w = nav.stdscr.getmaxyx()
     nav.window.resize(nav.h - 2, nav.w - 2)
+    nav.render()
     if nav.h < 4 or nav.w < 20:
-        return  # Do nothing if window is too small
-
+        nav.display_error('Terminal too small!!')

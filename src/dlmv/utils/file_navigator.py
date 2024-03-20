@@ -4,7 +4,6 @@ import os
 import curses
 from curses.textpad import Textbox, rectangle
 from .key_mappings import _key_press
-from .text_renderer import draw_shortcuts, display_error, display_list
 
 class FileNavigator:
     """
@@ -14,7 +13,7 @@ class FileNavigator:
 
     Attributes:
         stdscr (curses.window): The standard screen window.
-        cloney_is (None or str): The cloney_is value.
+        cloney_instance (None or str): The cloney_instance value.
         curr_path (str): The current path.
         idx (int): The index.
         files (list): The list of files in the current path.
@@ -25,7 +24,7 @@ class FileNavigator:
         shortcuts (list): The list of shortcuts.
 
     Methods:
-        __init__(self, stdscr, cloney_is=None): Initializes a new FileNavigator object.
+        __init__(self, stdscr, cloney_instance=None): Initializes a new FileNavigator object.
         update_files(self): Updates the list of files in the current path.
         create_window(self): Creates a new window using the curses library.
         render(self): Renders the file navigator screen.
@@ -39,22 +38,30 @@ class FileNavigator:
         navigate(self): Main loop for rendering the files TUI and handling user input.
     """
 
-    def __init__(self, stdscr, cloney_is=None):
+    def __init__(self, stdscr, cloney_instance=None):
         """
         Initializes a FileNavigator object.
 
         Parameters:
             stdscr (curses.window): the standard screen window.
-            cloney_is (None or str): value of cloney_is.
+            cloney_instance (None or str): value of cloney_instance.
         """
         self.stdscr = stdscr
-        self.cloney_is = cloney_is
+        self.cloney_instance = cloney_instance
         self.curr_path = os.getcwd()
         self.idx = 0
         self.update_files()
         self.h, self.w = stdscr.getmaxyx()
         self.window = self.create_window()
         self.scroll_pos = 0
+        self.shortcuts = [
+            ('h ←       ', "exit folder"),
+            ('l → enter ', "open folder"),
+            ('k|j ↑|↓   ', "up|down"),
+            ('        c ', "clone"),
+            ('        p ', "enter path"),
+            ('        q ', "quit")
+        ]
 
     def update_files(self):
         """
@@ -76,11 +83,13 @@ class FileNavigator:
         """
         Renders the file navigator screen.
 
-        Prepares render, shows files, draws shortcuts, and refreshes display.
+        Prepares render, shows files and shortcuts, and refreshes display.
         """
         self.prep_screen()
         self.get_curr_path()
-        draw_shortcuts(self.w)
+        self.draw_shortcuts()
+        visible_files = self.get_visible_files()
+        self.display_list(self.idx, self.scroll_pos, visible_files, self.curr_path)
         self.refresh()
 
     def prep_screen(self):
@@ -91,12 +100,21 @@ class FileNavigator:
         Otherwise, it clears the standard screen and window, and draws a box.
         """
         if self.is_terminal_small():
-            display_error(self.stdscr, 'Terminal too small!!', self.h)
+            self.display_error('Terminal too small!!')
 
         else:
             self.stdscr.clear()
             self.window.clear()
             self.stdscr.box()
+
+    def refresh(self):
+        """
+        Refresh terminal and window.
+
+        This method updates the display to reflect any changes made.
+        """
+        self.stdscr.refresh()
+        self.window.refresh()
 
     def is_terminal_small(self):
         """
@@ -105,18 +123,14 @@ class FileNavigator:
         Returns:
             bool: True if the terminal window is too small, False otherwise.
         """
-        return self.h < 4 or self.w < 20
+        return self.h < 20 or self.w < 40
 
     def get_curr_path(self):
         """
-        Display the current path above border.
+        This method displays the current path to the top border.
 
-        This method adds the current path to the top border.
-        It also retrieves visible files and renders with `display_list`.
         """
         self.stdscr.addstr(0, 1, f" -> Path: {self.curr_path} ", curses.A_REVERSE)
-        visible_files = self.get_visible_files()
-        display_list(self.window, self.idx, self.scroll_pos, visible_files, self.curr_path)
 
     def get_visible_files(self):
         """
@@ -127,14 +141,35 @@ class FileNavigator:
         """
         return self.files[self.scroll_pos:self.scroll_pos + self.h - 4]
 
-    def refresh(self):
+    def draw_shortcuts(self):
         """
-        Refresh terminal and window.
+        Draws shortcut descriptions in the top right corner.
 
-        This method updates the display to reflect any changes made.
         """
-        self.stdscr.refresh()
-        self.window.refresh()
+        box_w = 25
+        box_x = self.w - box_w - 1  # align top right with padding
+        for idx, (key, desc) in enumerate(self.shortcuts):
+            self.window.addstr(idx, box_x, f"{key}: {desc}")
+        
+    def display_list(self, idx, scroll_pos, files, curr_path):
+        """
+        Display list of files in the window, with directories and files colored differently.
+
+        Parameters:
+
+            idx (int): The current selected index in the file list.
+            scroll_pos (int): The current scroll position in the file list.
+            files (list): A list of file names to be displayed.
+            curr_path (str): The current path to resolve full paths for files/directories.
+
+        """
+        for i, file in enumerate(files):
+            is_dir = os.path.isdir(os.path.join(curr_path, file))
+            color_pair = 1 if is_dir else 2  # color pair 1 for dirs, 2 for files
+            if idx == scroll_pos + i:
+                self.window.addstr(i + 1, 1, file, curses.color_pair(color_pair) | curses.A_REVERSE)
+            else:
+                self.window.addstr(i + 1, 1, file, curses.color_pair(color_pair))
 
     def validate_path(self, path):
         """
@@ -149,41 +184,48 @@ class FileNavigator:
         expanded_path = os.path.expanduser(path)
         return os.path.exists(expanded_path) and os.path.isdir(expanded_path)
 
+    def display_error(self, message):
+        """
+        Displays an error message on the screen.
+
+        Parameters:
+
+            message: The error message to be displayed.
+        """
+        error_y = self.h // 4
+        self.stdscr.addstr(error_y, 1, message, curses.A_REVERSE)
+        self.stdscr.refresh()
+        curses.napms(3000)  # Pause for 3 seconds to let the user read the message
+        self.stdscr.move(error_y, 1)
+        self.stdscr.clrtoeol()
+        self.stdscr.refresh()
+
     def get_custom_path(self):
         """
         Prompts the user to enter a custom destination path and updates the current path if valid.
+        
+        If not, briefly displays an error before clearing the input and error text and giving control
+        back to the main file navigate screen.
         """
-        input_w = 40
-        input_h = 1
+        # Clear the window and prompt for a new path
+        self.window.clear()
+        prompt_msg = "Enter new path: "
+        self.window.addstr(1, 1, prompt_msg)
+        self.window.refresh()
 
-        win_w = self.window.getmaxyx()[1]
-        box_x = (win_w - input_w) // 2
-        box_y = 3
-        msg = "Destination path: "
+        # Enable echo to get input from the user
+        curses.echo()
+        input_path = self.window.getstr(1, len(prompt_msg) + 1).decode('utf-8')
+        curses.noecho()
 
-        input_win = curses.newwin(input_h+2, input_w, box_y, box_x)
-        self.stdscr.addstr(box_y-1, box_x, msg)
-        rectangle(self.stdscr, box_y-1, box_x-1, box_y+input_h+1, box_x+input_w+1)
-        self.stdscr.refresh()
-
-        box = Textbox(input_win)
-        box.edit()
-        input_win.refresh()
-
-        path = box.gather().strip()
-        expanded_path = os.path.expanduser(path)
-
-        if self.validate_path(expanded_path):
-            self.curr_path = expanded_path
+        # Validate the input path
+        if self.validate_path(input_path):
+            self.curr_path = os.path.expanduser(input_path)
+            self.idx = 0  # Reset cursor to the top of the new directory
+            self.scroll_pos = 0
             self.update_files()
-            self.idx = 0
-            self.window.clear()
-            self.render()
         else:
-            display_error(self.stdscr, "Invalid path...", self.h)
-
-        self.stdscr.touchwin()
-        self.refresh()
+            self.display_error("Invalid path! Returning to navigation.")
 
     def navigate(self):
         """
@@ -192,9 +234,10 @@ class FileNavigator:
         Listens for input to update the TUI, quitting when `q` is received.
         """
         while True:
+            if self.is_terminal_small():
+                self.display_error('Terminal too small!!')
             self.render()
             key = self.stdscr.getch()
-            _key_press(key, self)
+            _key_press(self.stdscr, key, self)
             if curses.isendwin():
                 break
-

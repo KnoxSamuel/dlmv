@@ -34,6 +34,7 @@ def main(stdscr, args: argparse.Namespace) -> None:
     else:
         cloney_instance = None
 
+    stdscr.keypad(True) # start listening to special keys
     c.curs_set(0) # hide cursor
     if c.has_colors():
         c.start_color()
