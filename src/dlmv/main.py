@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# src/main.py
+# src/dlmv/main.py
 
 import curses as c
 import argparse

@@ -1,4 +1,4 @@
-# src/utils/file_navigator.py
+# src/dlmv/utils/file_navigator.py
 
 import os
 import curses

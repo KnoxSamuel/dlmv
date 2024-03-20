@@ -1,4 +1,4 @@
-# src/utils/text_renderer.py
+# src/dlmv/utils/text_renderer.py
 
 import curses as c
 import os

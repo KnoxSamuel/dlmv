@@ -1,4 +1,4 @@
-# src/utils/key_mappings.py
+# src/dlmv/utils/key_mappings.py
 
 import curses as c
 import os
